@@ -18,9 +18,13 @@ interface NoteListProps {
   isError: boolean;
   errorMessage?: string;
   onSearchSubmit: (e: React.FormEvent) => void;
+  onSearchClear?: () => void;
   onQuickSearch: (term: string) => void;
   projectsList: string[];
   categoriesList: string[];
+  recentSearchTerms?: string[];
+  onRemoveSearchTerm?: (term: string) => void;
+  onClearSearchTerms?: () => void;
 }
 
 export const NoteList: React.FC<NoteListProps> = ({
@@ -39,29 +43,54 @@ export const NoteList: React.FC<NoteListProps> = ({
   isError,
   errorMessage,
   onSearchSubmit,
+  onSearchClear,
   onQuickSearch,
   projectsList,
   categoriesList,
+  recentSearchTerms = [],
+  onRemoveSearchTerm,
+  onClearSearchTerms,
 }) => {
-  const quickSuggestions = ['*', 'LocalMcp', 'architecture', 'agents', 'manual'];
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    searchInputRef.current?.focus();
+  }, []);
+
+  const searchTermsToDisplay =
+    recentSearchTerms && recentSearchTerms.length > 0
+      ? recentSearchTerms.slice(0, 5)
+      : ['*', 'LocalMcp', 'architecture', 'agents', 'manual'];
 
   return (
     <div className="flex flex-col h-full bg-transparent">
       {/* Search Bar & Controls */}
       <div className="p-4 sm:p-5 border-b border-[#E7E3DC] space-y-3">
         <form onSubmit={onSearchSubmit} className="relative">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
+          <button
+            type="submit"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-[#227C70] focus:outline-none focus:text-[#227C70] transition-colors p-0.5 rounded-md"
+            title="Search (or press Enter)"
+            aria-label="Submit search"
+          >
+            <Search className="w-4 h-4" />
+          </button>
           <input
+            ref={searchInputRef}
+            autoFocus
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search notes, tags, or content (e.g., LocalMcp, architecture)..."
+            placeholder="Search notes, tags, or content (press Enter to search)..."
             className="w-full pl-9 pr-8 py-2 text-xs sm:text-sm bg-white border border-[#E7E3DC] rounded-xl text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#227C70] focus:border-transparent transition-all shadow-2xs"
           />
           {query && (
             <button
               type="button"
-              onClick={() => setQuery('')}
+              onClick={() => {
+                setQuery('');
+                if (onSearchClear) onSearchClear();
+              }}
               className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-stone-400 hover:text-stone-700 rounded-full"
               aria-label="Clear search"
             >
@@ -70,25 +99,54 @@ export const NoteList: React.FC<NoteListProps> = ({
           )}
         </form>
 
-        {/* Quick Suggestion Chips */}
+        {/* Quick Suggestion Chips (Last 5 search terms stored in localStorage) */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar">
-          <span className="text-[11px] font-medium text-stone-400 shrink-0 flex items-center gap-1">
+          <span
+            className="text-[11px] font-medium text-stone-400 shrink-0 flex items-center gap-1"
+            title="Last 5 search terms stored in local storage"
+          >
             <Sparkles className="w-3 h-3 text-[#227C70]" /> Quick:
           </span>
-          {quickSuggestions.map((term) => (
-            <button
-              key={term}
-              type="button"
-              onClick={() => onQuickSearch(term)}
-              className={`px-2 py-0.5 rounded-full text-[11px] font-medium transition-all shrink-0 ${
-                query === term
-                  ? 'bg-[#227C70] text-white'
-                  : 'bg-stone-200/70 hover:bg-stone-300/80 text-stone-700'
-              }`}
-            >
-              {term}
-            </button>
+          {searchTermsToDisplay.map((term) => (
+            <div key={term} className="relative group/chip shrink-0 inline-flex items-center">
+              <button
+                type="button"
+                onClick={() => onQuickSearch(term)}
+                className={`px-2 py-0.5 rounded-full text-[11px] font-medium transition-all ${
+                  query === term
+                    ? 'bg-[#227C70] text-white shadow-2xs'
+                    : 'bg-stone-200/70 hover:bg-stone-300/80 text-stone-700'
+                }`}
+                title={`Search for "${term}" (saved in localStorage)`}
+              >
+                {term}
+              </button>
+              {onRemoveSearchTerm && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemoveSearchTerm(term);
+                  }}
+                  className="hidden group-hover/chip:flex items-center justify-center w-3.5 h-3.5 -ml-1.5 mr-0.5 bg-stone-400 hover:bg-rose-500 text-white rounded-full text-[9px] transition-colors"
+                  title={`Remove "${term}" from history`}
+                  aria-label={`Remove search term ${term}`}
+                >
+                  <X className="w-2.5 h-2.5" />
+                </button>
+              )}
+            </div>
           ))}
+          {onClearSearchTerms && recentSearchTerms.length > 0 && (
+            <button
+              type="button"
+              onClick={onClearSearchTerms}
+              className="text-[10px] text-stone-400 hover:text-stone-600 underline ml-1 shrink-0"
+              title="Reset search terms history in localStorage"
+            >
+              Reset
+            </button>
+          )}
         </div>
 
         {/* Filter Toolbar */}

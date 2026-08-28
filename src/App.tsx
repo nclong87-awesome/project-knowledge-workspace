@@ -24,6 +24,12 @@ import {
   updateProjectKnowledge,
   deleteProjectKnowledge,
 } from './lib/api';
+import {
+  getRecentSearchTerms,
+  addRecentSearchTerm,
+  removeRecentSearchTerm,
+  clearRecentSearchTerms,
+} from './lib/storage';
 
 import { TopBar } from './components/TopBar';
 import { NoteList } from './components/NoteList';
@@ -60,11 +66,13 @@ function WorkspaceContent() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mobileView, setMobileView] = useState<'list' | 'detail'>('list');
 
-  // Search parameters
+  // Search parameters & history in localStorage
   const [query, setQuery] = useState('');
+  const [submittedQuery, setSubmittedQuery] = useState('');
   const [projectFilter, setProjectFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [topLimit, setTopLimit] = useState(10);
+  const [recentSearchTerms, setRecentSearchTerms] = useState<string[]>(() => getRecentSearchTerms());
 
   // Toast feedback state
   const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -94,9 +102,9 @@ function WorkspaceContent() {
 
   // Search or Latest Entries Query Hook
   const searchQuery = useQuery({
-    queryKey: ['knowledge-list', query, projectFilter, categoryFilter, topLimit, apiBaseUrl],
+    queryKey: ['knowledge-list', submittedQuery, projectFilter, categoryFilter, topLimit, apiBaseUrl],
     queryFn: () => {
-      const trimmedQuery = query.trim();
+      const trimmedQuery = submittedQuery.trim();
       if (!trimmedQuery) {
         return getLatestProjectKnowledge();
       }
@@ -212,13 +220,34 @@ function WorkspaceContent() {
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (query.trim()) {
-      searchQuery.refetch();
+    const trimmed = query.trim();
+    setSubmittedQuery(trimmed);
+    if (trimmed) {
+      const updated = addRecentSearchTerm(trimmed);
+      setRecentSearchTerms(updated);
     }
+  };
+
+  const handleSearchClear = () => {
+    setQuery('');
+    setSubmittedQuery('');
   };
 
   const handleQuickSearch = (term: string) => {
     setQuery(term);
+    setSubmittedQuery(term);
+    const updated = addRecentSearchTerm(term);
+    setRecentSearchTerms(updated);
+  };
+
+  const handleRemoveSearchTerm = (term: string) => {
+    const updated = removeRecentSearchTerm(term);
+    setRecentSearchTerms(updated);
+  };
+
+  const handleClearSearchTerms = () => {
+    const updated = clearRecentSearchTerms();
+    setRecentSearchTerms(updated);
   };
 
   const handleAuthSuccess = (cId: string) => {
@@ -309,9 +338,13 @@ function WorkspaceContent() {
                   (searchQuery.error as any)?.message || 'Query failed'
                 }
                 onSearchSubmit={handleSearchSubmit}
+                onSearchClear={handleSearchClear}
                 onQuickSearch={handleQuickSearch}
                 projectsList={projectsList}
                 categoriesList={categoriesList}
+                recentSearchTerms={recentSearchTerms}
+                onRemoveSearchTerm={handleRemoveSearchTerm}
+                onClearSearchTerms={handleClearSearchTerms}
               />
             </div>
 
