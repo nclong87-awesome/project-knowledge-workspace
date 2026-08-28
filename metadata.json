@@ -1,0 +1,6 @@
+{
+  "name": "Project Knowledge Workspace",
+  "description": "Authenticated workspace for managing project knowledge entries and Markdown notes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#262321"/>
+      <stop offset="100%" stop-color="#141211"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCD34D"/>
+      <stop offset="50%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </linearGradient>
+    <linearGradient id="pageGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FAF8F5"/>
+      <stop offset="100%" stop-color="#E7E3DC"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Container background with squircle radius -->
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#bgGrad)" stroke="#3D3735" stroke-width="1.5" />
+
+  <!-- Book / Knowledge Base icon base -->
+  <g filter="url(#shadow)">
+    <!-- Back page layer -->
+    <rect x="18" y="14" width="28" height="36" rx="3" fill="url(#goldGrad)" opacity="0.85"/>
+    
+    <!-- Main page layer -->
+    <rect x="15" y="17" width="28" height="36" rx="3" fill="url(#pageGrad)"/>
+
+    <!-- Spine details -->
+    <line x1="19" y1="17" x2="19" y2="53" stroke="#D1CAC0" stroke-width="1"/>
+
+    <!-- Document text lines -->
+    <line x1="23" y1="24" x2="37" y2="24" stroke="#78716C" stroke-width="2" stroke-linecap="round"/>
+    <line x1="23" y1="30" x2="35" y2="30" stroke="#A8A29E" stroke-width="2" stroke-linecap="round"/>
+    <line x1="23" y1="36" x2="31" y2="36" stroke="#A8A29E" stroke-width="2" stroke-linecap="round"/>
+
+    <!-- Sparkle / Knowledge Star on top right -->
+    <path d="M41 19 L42.5 23 L46.5 24.5 L42.5 26 L41 30 L39.5 26 L35.5 24.5 L39.5 23 Z" fill="url(#goldGrad)"/>
+  </g>
+</svg>
