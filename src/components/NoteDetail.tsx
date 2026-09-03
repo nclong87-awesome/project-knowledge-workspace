@@ -44,6 +44,7 @@ export const NoteDetail: React.FC<NoteDetailProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [copiedId, setCopiedId] = useState(false);
   const [activeTab, setActiveTab] = useState<'preview' | 'code'>('preview');
 
   // Edit form state
@@ -112,11 +113,19 @@ export const NoteDetail: React.FC<NoteDetailProps> = ({
     );
   }
 
-  const handleCopy = () => {
+  const handleCopyContent = () => {
     if (note.content) {
       navigator.clipboard.writeText(note.content);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleCopyId = () => {
+    if (note.id) {
+      navigator.clipboard.writeText(note.id);
+      setCopiedId(true);
+      setTimeout(() => setCopiedId(false), 2000);
     }
   };
 
@@ -153,8 +162,8 @@ export const NoteDetail: React.FC<NoteDetailProps> = ({
   return (
     <div className="h-full flex flex-col bg-white overflow-hidden">
       {/* Top Toolbar */}
-      <div className="px-5 py-3 border-b border-[#E7E3DC] bg-[#FAF8F5] flex items-center justify-between gap-3 shrink-0">
-        <div className="flex items-center gap-2">
+      <div className="px-5 py-3 border-b border-[#E7E3DC] bg-[#FAF8F5] flex flex-wrap items-center justify-between gap-3 shrink-0">
+        <div className="flex items-center gap-2 flex-wrap min-w-0">
           {onBackToList && (
             <button
               onClick={onBackToList}
@@ -164,15 +173,40 @@ export const NoteDetail: React.FC<NoteDetailProps> = ({
               <ArrowLeft className="w-4 h-4" />
             </button>
           )}
-          <span className="text-xs font-mono text-stone-400">ID: {note.id.slice(0, 8)}...</span>
+
+          {/* Clearly Visible ID Badge & Copy to Clipboard Button */}
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-white border border-[#E7E3DC] rounded-lg text-xs font-mono text-stone-800 shadow-2xs">
+            <span className="text-stone-500 font-medium select-none">ID:</span>
+            <span className="font-semibold text-stone-900 select-all tracking-tight" title={note.id}>
+              {note.id}
+            </span>
+            <button
+              type="button"
+              onClick={handleCopyId}
+              className="ml-1 inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-sans font-medium text-[#227C70] hover:text-[#1a6057] bg-[#227C70]/10 hover:bg-[#227C70]/20 rounded-md transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-[#227C70]"
+              title="Copy ID to Clipboard"
+            >
+              {copiedId ? (
+                <>
+                  <Check className="w-3 h-3 text-emerald-600" />
+                  <span className="text-emerald-700 font-semibold">Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3 h-3 text-[#227C70]" />
+                  <span>Copy ID</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-wrap">
           {!isEditing ? (
             <>
               {/* Preview vs Code tab */}
-              <div className="flex items-center bg-stone-200/60 p-0.5 rounded-lg text-xs font-medium text-stone-600 mr-2">
+              <div className="flex items-center bg-stone-200/60 p-0.5 rounded-lg text-xs font-medium text-stone-600 mr-1">
                 <button
                   onClick={() => setActiveTab('preview')}
                   className={`px-2 py-1 rounded-md transition-all flex items-center gap-1 ${
@@ -204,13 +238,23 @@ export const NoteDetail: React.FC<NoteDetailProps> = ({
                 <RotateCw className="w-4 h-4" />
               </button>
 
-              {/* Copy */}
+              {/* Copy Content Button */}
               <button
-                onClick={handleCopy}
-                className="p-1.5 text-stone-600 hover:text-stone-900 hover:bg-stone-200/60 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#227C70]"
-                title="Copy Markdown content"
+                onClick={handleCopyContent}
+                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-stone-700 bg-stone-100 hover:bg-stone-200/80 border border-stone-200/80 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#227C70]"
+                title="Copy Markdown content to clipboard"
               >
-                {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+                {copied ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    <span className="text-emerald-700 font-medium">Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5 text-stone-600" />
+                    <span>Copy Content</span>
+                  </>
+                )}
               </button>
 
               {/* Edit */}
@@ -267,6 +311,19 @@ export const NoteDetail: React.FC<NoteDetailProps> = ({
             {/* Title & Metadata */}
             <div className="space-y-3 pb-4 border-b border-[#E7E3DC]">
               <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-stone-100 text-stone-800 border border-stone-200/80 text-xs font-mono">
+                  <span className="text-stone-400 font-medium">ID:</span>
+                  <span className="font-semibold text-stone-900 select-all">{note.id}</span>
+                  <button
+                    type="button"
+                    onClick={handleCopyId}
+                    className="p-0.5 text-stone-500 hover:text-[#227C70] transition-colors rounded ml-0.5"
+                    title="Copy ID to Clipboard"
+                  >
+                    {copiedId ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                  </button>
+                </span>
+
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#227C70]/10 text-[#227C70] font-medium text-xs">
                   <Folder className="w-3.5 h-3.5" />
                   {note.project}
