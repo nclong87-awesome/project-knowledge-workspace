@@ -6,6 +6,7 @@ export type ProjectKnowledgeItem = {
   content: string;
   tags: string;
   source: string;
+  llmModel: string;
   createdAt: string;
   updatedAt: string;
 };

@@ -16,6 +16,7 @@ import {
   ArrowLeft,
   Sparkles,
   Share2,
+  Cpu,
 } from 'lucide-react';
 import { ProjectKnowledgeItem, UpdateProjectKnowledgeInput } from '../types';
 
@@ -329,6 +330,17 @@ export const NoteDetail: React.FC<NoteDetailProps> = ({
                   </span>
                 )}
 
+                {/* LLM Model Badge (Read-only Metadata) */}
+                {note.llmModel && (
+                  <span
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-purple-50 text-purple-900 border border-purple-200/80 text-xs font-medium font-mono"
+                    title="LLM Model (Read-only Metadata)"
+                  >
+                    <Cpu className="w-3.5 h-3.5 text-purple-600" />
+                    <span>{note.llmModel}</span>
+                  </span>
+                )}
+
                 {/* ID Badge */}
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-stone-50 border border-stone-200/80 text-xs font-mono text-stone-700 shadow-2xs">
                   <span className="text-stone-400 font-medium select-none">id:</span>
@@ -402,6 +414,19 @@ export const NoteDetail: React.FC<NoteDetailProps> = ({
         ) : (
           /* Edit Mode Form */
           <form onSubmit={handleSaveEdit} className="space-y-4">
+            {/* Read-Only Metadata Info */}
+            {note.llmModel && (
+              <div className="p-3 bg-purple-50/70 border border-purple-200/80 rounded-xl flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 text-purple-950 font-medium">
+                  <Cpu className="w-4 h-4 text-purple-600 shrink-0" />
+                  <span>LLM Model (Read-only Metadata):</span>
+                  <code className="bg-purple-100/90 px-2 py-0.5 rounded font-mono font-semibold text-purple-950">
+                    {note.llmModel}
+                  </code>
+                </div>
+                <span className="text-[11px] text-purple-700 font-medium">Read-Only</span>
+              </div>
+            )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-medium text-stone-700 mb-1">Project Name *</label>
