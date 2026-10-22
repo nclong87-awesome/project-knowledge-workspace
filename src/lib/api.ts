@@ -107,8 +107,23 @@ async function apiFetch<T>(
  * Get latest entries when search term is empty (or when user open/refresh app)
  * GET /api/project-knowledge/latest
  */
-export async function getLatestProjectKnowledge(): Promise<ProjectKnowledgeSearchResponse> {
-  const path = '/api/project-knowledge/latest';
+export async function getLatestProjectKnowledge(params?: {
+  project?: string;
+  category?: string;
+  limit?: number;
+}): Promise<ProjectKnowledgeSearchResponse> {
+  const searchParams = new URLSearchParams();
+  if (params?.project && params.project.trim() !== '' && params.project !== 'all') {
+    searchParams.append('project', params.project.trim());
+  }
+  if (params?.category && params.category.trim() !== '' && params.category !== 'all') {
+    searchParams.append('category', params.category.trim());
+  }
+  if (params?.limit && params.limit >= 1 && params.limit <= 20) {
+    searchParams.append('limit', params.limit.toString());
+  }
+  const queryString = searchParams.toString();
+  const path = queryString ? `/api/project-knowledge/latest?${queryString}` : '/api/project-knowledge/latest';
   return apiFetch<ProjectKnowledgeSearchResponse>(path, { method: 'GET' });
 }
 

@@ -71,7 +71,7 @@ function WorkspaceContent() {
   const [submittedQuery, setSubmittedQuery] = useState('');
   const [projectFilter, setProjectFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
-  const [topLimit, setTopLimit] = useState(10);
+  const [topLimit, setTopLimit] = useState(15);
   const [recentSearchTerms, setRecentSearchTerms] = useState<string[]>(() => getRecentSearchTerms());
 
   // Toast feedback state
@@ -106,7 +106,11 @@ function WorkspaceContent() {
     queryFn: () => {
       const trimmedQuery = submittedQuery.trim();
       if (!trimmedQuery) {
-        return getLatestProjectKnowledge();
+        return getLatestProjectKnowledge({
+          project: projectFilter,
+          category: categoryFilter,
+          limit: topLimit,
+        });
       }
       return searchProjectKnowledge({
         query: trimmedQuery,
